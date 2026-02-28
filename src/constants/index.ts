@@ -77,7 +77,7 @@ export const MOCK_PRODUCTS: Product[] = [
   },
   {
     id: '4',
-    name: 'Cam Xành Đà Lạt',
+    name: 'Cam sành Đà Lạt',
     category: 'Củ & hạt',
     price: 12000,
     originalPrice: 30000,
