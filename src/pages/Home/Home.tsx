@@ -136,15 +136,15 @@ const Home: React.FC<HomeProps> = ({ onSelectProduct }) => {
 const CarouselTestimonials: React.FC = () => {
   const testimonials = [
     {
-      name: 'Cathy P',
+      name: 'Anh D',
       text: 'Chúng tôi rất hài lòng với sự đa dạng và độ tươi của rau quả. Sản phẩm giữ tươi lâu hơn nhiều so với hàng siêu thị.'
     },
     {
-      name: 'Julia C',
+      name: 'Chi C',
       text: 'Giá trị tuyệt vời và chất lượng rất tốt. Chúng tôi so sánh và tiết kiệm đáng kể so với giá siêu thị. Dịch vụ giao hàng cũng rất chuyên nghiệp.'
     },
     {
-      name: 'Ash S',
+      name: 'Anh D',
       text: 'Rất ấn tượng với hương vị sản phẩm — thật tuyệt vời! Rất đáng để thử.'
     }
   ];
