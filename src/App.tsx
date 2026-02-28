@@ -159,6 +159,10 @@ const App: React.FC = () => {
     setIsSuccessOpen(false);
     setIsTrackingOpen(false);
     setSelectedProductId(null);
+    // allow scrolling and reset scroll position
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    window.scrollTo(0, 0);
   };
 
   const handleProceedToCheckout = () => {
@@ -183,6 +187,9 @@ const App: React.FC = () => {
     setIsTrackingOpen(false);
     setIsNewsOpen(false);
     setSelectedProductId(null);
+    // restore scrolling
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   };
 
   // Rendering logic for Auth Screens

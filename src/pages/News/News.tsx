@@ -3,6 +3,14 @@ import React from 'react';
 import { Clock, ChevronRight, Search, Share2, Bookmark, Flame, Leaf, Coffee, Heart } from 'lucide-react';
 
 const News: React.FC = () => {
+  React.useEffect(() => {
+    document.body.style.setProperty('overflow', 'auto', 'important');
+    document.documentElement.style.setProperty('overflow', 'auto', 'important');
+    return () => {
+      document.body.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow');
+    };
+  }, []);
   const categories = [
     { name: 'Xu hướng', icon: Flame, color: 'text-orange-500' },
     { name: 'Nhà nông', icon: Leaf, color: 'text-primary' },
@@ -51,7 +59,7 @@ const News: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white animate-in fade-in duration-500 pb-20 min-h-full overflow-y-auto">
+    <div className="bg-white animate-in fade-in duration-500 pb-20 min-h-screen overflow-y-auto">
       {/* Search & Categories Bar */}
       <div className="border-b border-gray-100 sticky top-[112px] z-30 bg-white/80 backdrop-blur-md">
         <div className="max-w-[1280px] mx-auto px-4 md:px-10 lg:px-40 py-4 flex flex-col md:flex-row items-center justify-between gap-6">
