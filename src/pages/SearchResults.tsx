@@ -33,6 +33,24 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [minRating, setMinRating] = useState<number>(0);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<string | null>(null);
+
+  const categoryOptions = [
+    { key: 'cu-gia-vi',          categoryId: 1, name: 'Củ gia vị' },
+    { key: 'cu-thuc-pham',       categoryId: 1, name: 'Củ thực phẩm' },
+    { key: 'trai-cay-nhiet-doi', categoryId: 2, name: 'Trái cây nhiệt đới' },
+    { key: 'trai-cay-quanh-nam', categoryId: 2, name: 'Trái cây quanh năm' },
+  ];
+
+  const handleCategoryChange = (key: string, catId: number) => {
+    if (selectedCategoryKey === key) {
+      setSelectedCategoryKey(null);
+      setSelectedCategoryId(null);
+    } else {
+      setSelectedCategoryKey(key);
+      setSelectedCategoryId(catId);
+    }
+  };
   const [showFilters, setShowFilters] = useState(false);
   const [productRatings, setProductRatings] = useState<Record<number, { average: number; count: number }>>({});
   const itemsPerPage = 12;
@@ -211,6 +229,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
     setPriceFilter('all');
     setMinRating(0);
     setSelectedCategoryId(null);
+    setSelectedCategoryKey(null);
     setSortBy('popular');
   };
 
@@ -233,20 +252,16 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
         {/* Category Filter */}
         <div>
           <h4 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">Danh mục sản phẩm</h4>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { id: 1, name: 'Củ' },
-              { id: 2, name: 'Trái cây' },
-              { id: 4, name: 'Khác' },
-            ].map((cat) => (
-              <label key={cat.id} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+          <div className="flex flex-col gap-2">
+            {categoryOptions.map((cat) => (
+              <label key={cat.key} className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
-                  checked={selectedCategoryId === cat.id}
-                  onChange={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
+                  checked={selectedCategoryKey === cat.key}
+                  onChange={() => handleCategoryChange(cat.key, cat.categoryId)}
                   className="w-3.5 h-3.5 text-primary focus:ring-primary border-gray-300 rounded"
                 />
-                <span className={`text-[13px] transition-colors ${selectedCategoryId === cat.id ? 'text-primary font-bold' : 'text-gray-600 group-hover:text-primary'}`}>
+                <span className={`text-[13px] transition-colors ${selectedCategoryKey === cat.key ? 'text-primary font-bold' : 'text-gray-600 group-hover:text-primary'}`}>
                   {cat.name}
                 </span>
               </label>
