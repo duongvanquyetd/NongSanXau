@@ -110,7 +110,7 @@ const FarmerNotifications: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-4xl space-y-4">
+      <div id="tour-notifications-list" className="max-w-4xl space-y-4">
         {loading && (
           <div className="p-8 bg-white rounded-[40px] border border-gray-100 shadow-sm flex items-center gap-4">
             <Clock className="size-5 text-primary animate-spin-slow" />

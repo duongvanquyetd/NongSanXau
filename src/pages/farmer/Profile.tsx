@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Camera, ShieldCheck, Mail, Phone, MapPin, Star, Award, Leaf, FileText, Plus, Save, ExternalLink, User, CheckCircle2, Hourglass, ShieldAlert, Package, ShoppingBag, TrendingUp, Loader2 } from 'lucide-react';
+import { Camera, ShieldCheck, Mail, Phone, MapPin, Star, Award, Leaf, FileText, Plus, Save, ExternalLink, User, CheckCircle2, Hourglass, ShieldAlert, Package, ShoppingBag, TrendingUp, Loader2, BookOpen } from 'lucide-react';
 import { authService, UserResponse, productService, ProductResponse, orderService, OrderResponse } from '../../services';
 
 const Profile: React.FC = () => {
@@ -240,11 +240,23 @@ const Profile: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Nút xem hướng dẫn */}
+              <button
+                onClick={() => {
+                  localStorage.removeItem('farmer_onboarding_done_v6');
+                  window.location.reload();
+                }}
+                className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border border-primary/20 text-primary rounded-xl text-xs font-black hover:bg-primary/5 transition-all shadow-sm"
+              >
+                <BookOpen className="size-4" />
+                Xem hướng dẫn sử dụng
+              </button>
             </div>
           </div>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div id="tour-profile-stats" className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="size-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -294,7 +306,7 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div id="tour-profile-form" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Contact Info */}
             <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <div className="flex items-center gap-2 mb-6">

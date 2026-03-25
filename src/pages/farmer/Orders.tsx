@@ -183,7 +183,7 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
             const needsFarmerConfirm = isPending || isPaid;
 
             return (
-              <div key={order.id} className={`bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden group hover:border-primary/20 transition-all ${isDelivered || isCancelled || isFailed ? 'opacity-80' : ''}`}>
+              <div key={order.id} id={filteredOrders.indexOf(order) === 0 ? 'tour-orders-first-card' : undefined} className={`bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden group hover:border-primary/20 transition-all ${isDelivered || isCancelled || isFailed ? 'opacity-80' : ''}`}>
                 {/* Order header */}
                 <div className="px-8 py-5 bg-gray-50/50 border-b border-gray-50 flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-wrap">
@@ -260,7 +260,7 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
                   </div>
 
                   {/* Right: action panel */}
-                  <div className="w-full md:w-80 flex flex-col gap-3 justify-center">
+                  <div id={filteredOrders.indexOf(order) === 0 ? 'tour-orders-action-panel' : undefined} className="w-full md:w-80 flex flex-col gap-3 justify-center">
                     {needsFarmerConfirm && (
                       <>
                         {isPaid && (
@@ -273,7 +273,7 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
                           className="w-full py-4 bg-primary text-white font-black rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-95 disabled:opacity-50">
                           <CheckCircle2 className="size-5" /> Chuẩn bị hàng
                         </button>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div id={filteredOrders.indexOf(order) === 0 ? 'tour-orders-contact-btns' : undefined} className="grid grid-cols-2 gap-3">
                           <button 
                             onClick={() => navigate(`/farmer/messages?userId=${order.buyerId}&userName=${order.recipientName}`)}
                             className="py-3 border border-gray-100 text-gray-600 font-bold text-xs rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-all font-display uppercase tracking-tight"

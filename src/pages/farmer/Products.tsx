@@ -186,7 +186,7 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
       )}
 
       <div id="tour-products-search" className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50 flex flex-wrap items-center gap-4">
+        <div id="tour-products-filter-bar" className="p-6 border-b border-gray-50 flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[300px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
             <input 
@@ -261,10 +261,10 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
                   <td colSpan={6} className="px-10 py-10 text-center text-gray-400 font-bold">Không tìm thấy sản phẩm nào. {products.length === 0 && 'Hãy thêm sản phẩm mới!'}</td>
                 </tr>
               )}
-              {activeTab === 'NONG_SAN' && currentPageData.map((p) => {
+              {activeTab === 'NONG_SAN' && currentPageData.map((p, idx) => {
                 const isOut = p.stockQuantity <= 0;
                 return (
-                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={p.id} id={idx === 0 ? 'tour-products-first-row' : undefined} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
                         <img src={p.imageUrl || 'https://picsum.photos/seed/product/80/80'} className="size-12 rounded-2xl object-cover shadow-sm bg-gray-100" />
@@ -298,7 +298,7 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
                       </span>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="flex flex-col items-end gap-2">
+                      <div id={idx === 0 ? 'tour-products-action-btns' : undefined} className="flex flex-col items-end gap-2">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => onNavigate(`edit-product/${p.id}`)}

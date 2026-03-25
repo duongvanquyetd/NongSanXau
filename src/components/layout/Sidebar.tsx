@@ -121,6 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, user, currentPath, onNavigate, 
           </div>
           <button
             onClick={onLogout}
+            id="tour-sidebar-logout"
             title="Đăng xuất"
             className="size-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-red-200"
           >

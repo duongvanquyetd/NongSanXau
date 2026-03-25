@@ -117,8 +117,8 @@ const Reviews: React.FC = () => {
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-2 bg-gradient-to-br from-primary to-primary-dark p-8 rounded-[32px] shadow-lg shadow-primary/20 text-white flex items-center justify-between">
+      <div id="tour-reviews-stats" className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div id="tour-reviews-avg-card" className="md:col-span-2 bg-gradient-to-br from-primary to-primary-dark p-8 rounded-[32px] shadow-lg shadow-primary/20 text-white flex items-center justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-primary-100 mb-2">Đánh Giá Trung Bình</p>
             <div className="flex items-baseline gap-3">
@@ -150,7 +150,7 @@ const Reviews: React.FC = () => {
       </div>
 
       {/* Reviews List */}
-      <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+      <div id="tour-reviews-list" className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
           <h4 className="font-black text-gray-800 uppercase tracking-tight">Mới Nhất ({reviews.length})</h4>
           <button className="flex items-center gap-2 px-4 py-2 border border-gray-100 text-gray-500 rounded-xl text-xs font-bold hover:bg-gray-50">
@@ -175,7 +175,7 @@ const Reviews: React.FC = () => {
             const isReplyingNow = replyingTo === review.id;
 
             return (
-              <div key={review.id} className="p-8 hover:bg-gray-50/30 transition-colors">
+              <div key={review.id} id={reviews.indexOf(review) === 0 ? 'tour-reviews-first-card' : undefined} className="p-8 hover:bg-gray-50/30 transition-colors">
                 <div className="flex gap-6">
                   {/* Avatar */}
                   <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center font-black text-primary border border-primary/20 shrink-0">

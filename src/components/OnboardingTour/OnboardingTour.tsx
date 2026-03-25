@@ -2,12 +2,18 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronRight, X, Sparkles, BookOpen } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface DetailStep {
   label: string;
   description: string;
   targetId?: string;
+  /** Chỉ highlight phần tử con đầu tiên trong tbody */
+  firstChildOnly?: boolean;
+  /** Giới hạn highlight chỉ lấy phần header (60px đầu) của container lớn */
+  headerOnly?: boolean;
+  /** false = bao hết toàn bộ element, không giới hạn chiều cao */
+  clampHeight?: boolean;
+  /** Thêm padding extra (px) vào 4 cạnh highlight */
+  extraPad?: number;
 }
 
 interface SidebarStep {
@@ -18,8 +24,6 @@ interface SidebarStep {
   details: DetailStep[];
 }
 
-// ─── Tour Data ────────────────────────────────────────────────────────────────
-
 const TOUR_STEPS: SidebarStep[] = [
   {
     sidebarItemId: 'sidebar-item-overview',
@@ -27,22 +31,22 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '📊 Tổng quan',
     description: 'Đây là trang chủ của bạn. Xem doanh thu, đơn hàng mới và các thống kê quan trọng tại đây.',
     details: [
-      { label: 'Thẻ thống kê', description: 'Các ô số liệu ở đầu trang cho bạn thấy tổng đơn hàng, sản phẩm đang bán, combo, hộp mù và số dư ví.', targetId: 'tour-overview-stats' },
-      { label: 'Bảng sản phẩm', description: 'Phần giữa trang liệt kê nhanh các sản phẩm, combo và hộp mù. Bấm vào tab để chuyển loại.', targetId: 'tour-overview-products' },
-      { label: 'Đơn hàng gần đây', description: 'Cột bên phải hiển thị 5 đơn hàng mới nhất. Bấm "Xem Tất Cả" để vào trang quản lý đơn hàng.', targetId: 'tour-overview-orders' },
-      { label: 'Chi tiết tài chính', description: 'Phần dưới cho thấy số dư khả dụng và số dư đóng băng. Bấm "Rút tiền" để chuyển tiền về ngân hàng.', targetId: 'tour-overview-finance' },
+      { label: '📈 Thẻ thống kê', description: 'Các ô số liệu ở đầu trang cho bạn thấy tổng đơn hàng, sản phẩm đang bán, hộp mù và số dư ví. Nhìn vào đây mỗi sáng để nắm tình hình nhanh nhất!', targetId: 'tour-overview-stats' },
+      { label: '📦 Bảng sản phẩm', description: 'Phần giữa trang liệt kê nhanh các sản phẩm và hộp mù của bạn. Bấm vào tab "Nông Sản" hoặc "Hộp Mù" để chuyển loại xem.', targetId: 'tour-overview-products' },
+      { label: '🛒 Đơn hàng gần đây', description: 'Cột bên phải hiển thị 5 đơn hàng mới nhất. Bấm "Xem Tất Cả Đơn Hàng" để vào trang quản lý đơn hàng đầy đủ.', targetId: 'tour-overview-orders' },
+      { label: '💳 Chi tiết tài chính', description: 'Phần dưới cho thấy số dư khả dụng và số dư đóng băng. Bấm "Rút tiền về ngân hàng" để chuyển tiền về tài khoản của bạn.', targetId: 'tour-overview-finance-cards', extraPad: 8 },
     ],
   },
   {
     sidebarItemId: 'sidebar-item-products',
     routePath: 'products',
     title: '🌿 Sản phẩm',
-    description: 'Thêm, chỉnh sửa và quản lý tất cả nông sản của bạn. Bạn cũng có thể tạo combo và hộp bí ẩn ở đây.',
+    description: 'Thêm, chỉnh sửa và quản lý tất cả nông sản của bạn. Bạn cũng có thể tạo hộp bí ẩn ở đây.',
     details: [
-      { label: 'Tab Nông Sản / Combo / Hộp Mù', description: 'Bấm vào 3 tab ở đầu trang để chuyển giữa danh sách nông sản, túi combo và hộp mù.', targetId: 'tour-products-tabs' },
-      { label: 'Nút Thêm sản phẩm mới', description: 'Bấm nút xanh góc trên phải để thêm sản phẩm mới, tạo combo hoặc tạo hộp mù tùy theo tab đang chọn.', targetId: 'tour-products-add-btn' },
-      { label: 'Tìm kiếm & Lọc', description: 'Dùng ô tìm kiếm để tìm theo tên hoặc ID. Dùng bộ lọc để lọc theo danh mục và trạng thái.', targetId: 'tour-products-search' },
-      { label: 'Thao tác sản phẩm', description: 'Mỗi dòng có 3 nút: ✏️ Chỉnh sửa, 👁️ Ẩn/Hiện, 🗑️ Xóa. Hãy cẩn thận khi xóa vì không thể hoàn tác.', targetId: 'tour-products-table' },
+      { label: '🗂️ Tab Nông Sản / Hộp Mù', description: 'Bấm vào 2 tab ở đầu trang để chuyển giữa danh sách nông sản và hộp mù. Mỗi tab có bộ lọc riêng phù hợp.', targetId: 'tour-products-tabs' },
+      { label: '➕ Nút Thêm sản phẩm mới', description: 'Bấm nút xanh góc trên phải để thêm sản phẩm mới hoặc tạo hộp mù tùy theo tab đang chọn. Điền đầy đủ thông tin để Admin duyệt nhanh hơn!', targetId: 'tour-products-add-btn' },
+      { label: '🔍 Tìm kiếm & Lọc', description: 'Dùng ô tìm kiếm để tìm theo tên hoặc ID. Dùng bộ lọc danh mục và trạng thái để thu hẹp kết quả. Có thể lọc "Chờ duyệt" để xem sản phẩm đang chờ Admin phê duyệt.', targetId: 'tour-products-filter-bar' },
+      { label: '✏️ Thao tác sản phẩm', description: 'Mỗi dòng có 3 nút: ✏️ Chỉnh sửa thông tin, 👁️ Ẩn/Hiện sản phẩm, 🗑️ Xóa. Lưu ý: sản phẩm mới đăng sẽ ở trạng thái "Chờ duyệt" cho đến khi Admin phê duyệt.', targetId: 'tour-products-action-btns' },
     ],
   },
   {
@@ -51,9 +55,9 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '🛒 Đơn hàng',
     description: 'Xem và xử lý các đơn hàng từ khách mua. Nhớ xác nhận đơn hàng sớm để khách không phải chờ lâu nhé!',
     details: [
-      { label: 'Tab trạng thái đơn hàng', description: 'Các tab ở đầu giúp lọc đơn theo trạng thái: Chờ xác nhận, Đang chuẩn bị, Đang giao, Đã giao, Đã hủy.', targetId: 'tour-orders-tabs' },
-      { label: 'Xác nhận đơn hàng', description: 'Khi có đơn mới (màu vàng "Chờ xác nhận"), bấm nút "Chuẩn bị hàng" để xác nhận và bắt đầu đóng gói.', targetId: 'tour-orders-list' },
-      { label: 'Liên hệ & Hủy đơn', description: 'Bấm "Liên hệ KH" để nhắn tin với khách. Bấm "Hủy đơn" nếu không thể giao hàng.', targetId: 'tour-orders-list' },
+      { label: '📋 Tab trạng thái đơn hàng', description: 'Các tab ở đầu giúp lọc đơn theo trạng thái: Chờ xác nhận, Đang chuẩn bị, Đang giao, Đã giao, Đã hủy. Số trong ngoặc là số đơn đang ở trạng thái đó.', targetId: 'tour-orders-tabs' },
+      { label: '✅ Xác nhận & xử lý đơn', description: 'Khi có đơn mới (màu vàng "Chờ xác nhận"), bấm nút "Chuẩn bị hàng" để xác nhận và bắt đầu đóng gói. Sau khi đóng gói xong, shipper sẽ đến lấy hàng.', targetId: 'tour-orders-first-card', clampHeight: false },
+      { label: '📞 Liên hệ khách hàng', description: 'Trong mỗi đơn hàng có nút "Liên hệ KH" để nhắn tin với khách. Bấm "Hủy đơn" nếu không thể giao và nhập lý do rõ ràng để khách hiểu.', targetId: 'tour-orders-contact-btns' },
     ],
   },
   {
@@ -62,8 +66,8 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '⭐ Đánh giá',
     description: 'Xem phản hồi của khách hàng về sản phẩm của bạn. Đánh giá tốt giúp cửa hàng bán được nhiều hơn.',
     details: [
-      { label: 'Danh sách đánh giá', description: 'Tất cả đánh giá từ khách hàng được hiển thị ở đây, bao gồm số sao và bình luận.' },
-      { label: 'Điểm trung bình', description: 'Điểm đánh giá trung bình ảnh hưởng trực tiếp đến thứ hạng hiển thị của cửa hàng trên sàn.' },
+      { label: '📊 Thống kê đánh giá', description: 'Thẻ lớn bên trái hiển thị điểm trung bình của cửa hàng. Hai thẻ bên phải cho thấy tổng lượt đánh giá và số đánh giá chưa được phản hồi.', targetId: 'tour-reviews-stats', extraPad: 8 },
+      { label: '💬 Danh sách đánh giá', description: 'Tất cả đánh giá từ khách hàng được hiển thị ở đây. Bấm "Phản hồi" để trả lời từng đánh giá. Phản hồi nhanh và lịch sự giúp tăng uy tín cửa hàng rất nhiều!', targetId: 'tour-reviews-first-card', clampHeight: false },
     ],
   },
   {
@@ -72,17 +76,7 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '🔔 Thông báo',
     description: 'Nhận thông báo về đơn hàng mới, thanh toán và các cập nhật quan trọng từ hệ thống.',
     details: [
-      { label: 'Danh sách thông báo', description: 'Tất cả thông báo từ hệ thống hiển thị ở đây. Thông báo chưa đọc sẽ được đánh dấu nổi bật.' },
-    ],
-  },
-  {
-    sidebarItemId: 'sidebar-item-farmer-disputes',
-    routePath: 'farmer-disputes',
-    title: '⚖️ Khiếu nại',
-    description: 'Nếu có tranh chấp với khách hàng, bạn có thể xử lý tại đây. Hãy giải quyết nhanh để bảo vệ uy tín cửa hàng.',
-    details: [
-      { label: 'Danh sách khiếu nại', description: 'Các khiếu nại từ khách hàng về đơn hàng của bạn được liệt kê ở đây.' },
-      { label: 'Phản hồi khiếu nại', description: 'Bấm vào từng khiếu nại để xem chi tiết và gửi phản hồi. Phản hồi nhanh giúp tăng điểm uy tín.' },
+      { label: '📬 Danh sách thông báo', description: 'Tất cả thông báo từ hệ thống hiển thị ở đây. Thông báo chưa đọc sẽ được đánh dấu nổi bật. Bấm "Đánh dấu tất cả đã đọc" ở góc trên phải để xóa hết dấu chưa đọc.', targetId: 'tour-notifications-list' },
     ],
   },
   {
@@ -91,9 +85,8 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '👤 Hồ sơ cá nhân',
     description: 'Cập nhật thông tin cửa hàng, ảnh đại diện và các thông tin liên hệ của bạn.',
     details: [
-      { label: 'Thông tin cửa hàng', description: 'Cập nhật tên cửa hàng, mô tả, địa chỉ và số điện thoại liên hệ.' },
-      { label: 'Ảnh đại diện', description: 'Tải lên logo cửa hàng để khách hàng dễ nhận biết. Ảnh rõ nét giúp tăng độ tin cậy.' },
-      { label: 'Thông tin ngân hàng', description: 'Cập nhật tài khoản ngân hàng để nhận tiền khi rút từ ví.' },
+      { label: '📈 Thống kê cửa hàng', description: 'Bốn thẻ số liệu cho thấy tổng sản phẩm, đơn hàng, doanh thu và điểm đánh giá của cửa hàng bạn. Đây là bức tranh tổng quan về hiệu quả kinh doanh.', targetId: 'tour-profile-stats' },
+      { label: '📝 Thông tin & Ảnh đại diện', description: 'Điền đầy đủ tên cửa hàng, số điện thoại, địa chỉ và mô tả. Bấm vào ảnh đại diện để tải ảnh logo lên. Thông tin đầy đủ giúp khách hàng tin tưởng hơn!', targetId: 'tour-profile-form' },
     ],
   },
   {
@@ -102,8 +95,8 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '💬 Tin nhắn',
     description: 'Trò chuyện trực tiếp với khách hàng. Trả lời nhanh giúp tăng tỷ lệ chốt đơn hàng.',
     details: [
-      { label: 'Danh sách hội thoại', description: 'Bên trái là danh sách các cuộc trò chuyện với khách hàng. Bấm vào để mở hội thoại.' },
-      { label: 'Khung chat', description: 'Gõ tin nhắn vào ô bên dưới và bấm gửi. Bạn có thể gửi ảnh và file đính kèm.' },
+      { label: '📋 Danh sách hội thoại', description: 'Bên trái là danh sách các cuộc trò chuyện với khách hàng. Số đỏ bên cạnh tên là tin nhắn chưa đọc. Bấm vào tên khách để mở hội thoại.', targetId: 'tour-messages-search' },
+      { label: '💬 Chọn cuộc trò chuyện', description: 'Bấm vào một cuộc trò chuyện để mở khung chat bên phải. Gõ tin nhắn vào ô bên dưới và bấm gửi. Trả lời nhanh giúp khách hàng tin tưởng hơn!', targetId: 'tour-messages-first-conv' },
     ],
   },
   {
@@ -112,77 +105,79 @@ const TOUR_STEPS: SidebarStep[] = [
     title: '💰 Ví tiền',
     description: 'Xem số dư và lịch sử giao dịch. Bạn có thể rút tiền về tài khoản ngân hàng tại đây.',
     details: [
-      { label: 'Tổng doanh thu & Đã rút', description: 'Hai thẻ đầu trang hiển thị tổng doanh thu từ trước đến nay và tổng số tiền đã rút thành công.', targetId: 'tour-wallet-cards' },
-      { label: 'Yêu cầu rút tiền', description: 'Bấm nút "Yêu cầu rút tiền" góc trên phải, điền số tiền và thông tin ngân hàng rồi xác nhận.', targetId: 'tour-wallet-withdraw-btn' },
-      { label: 'Lịch sử giao dịch', description: 'Bảng bên dưới liệt kê tất cả các lần rút tiền, trạng thái và ngày xử lý.', targetId: 'tour-wallet-history' },
+      { label: '💵 Tổng doanh thu & Đã rút', description: 'Hai thẻ đầu trang hiển thị tổng doanh thu từ trước đến nay và tổng số tiền đã rút thành công. Số dư khả dụng là phần bạn có thể rút ngay.', targetId: 'tour-wallet-cards', extraPad: 8 },
+      { label: '🏦 Yêu cầu rút tiền', description: 'Bấm nút "Yêu cầu rút tiền" góc trên phải, điền số tiền muốn rút và thông tin tài khoản ngân hàng rồi xác nhận. Tiền sẽ về trong 1-2 ngày làm việc.', targetId: 'tour-wallet-withdraw-btn' },
+      { label: '📜 Lịch sử giao dịch', description: 'Bảng bên dưới liệt kê tất cả các lần rút tiền, trạng thái xử lý và ngày thực hiện. Trạng thái "Đang xử lý" nghĩa là Admin đang duyệt yêu cầu của bạn.', targetId: 'tour-wallet-history' },
+      { label: '🚪 Nút đăng xuất', description: 'Nút đỏ nhỏ ở góc dưới sidebar là nút Đăng xuất. Bấm vào đây khi bạn muốn thoát khỏi tài khoản. Nhớ đăng xuất khi dùng máy tính chung để bảo mật tài khoản nhé!', targetId: 'tour-sidebar-logout' },
     ],
   },
 ];
 
-const STORAGE_KEY = 'farmer_onboarding_done_v2';
-const TOOLTIP_W = 288; // w-72 = 288px
-const TOOLTIP_H = 260; // ước tính chiều cao tooltip
-const GAP = 14;        // khoảng cách giữa highlight và tooltip
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'farmer_onboarding_done_v6';
+const TOOLTIP_W = 300;
+const TOOLTIP_H = 280;
+const GAP = 14;
 
 interface Rect { top: number; left: number; width: number; height: number }
 
-function getRect(id: string): Rect | null {
+function getRect(id: string, firstChildOnly = false, headerOnly = false, clampHeight = true, extraPad = 0): Rect | null {
   const el = document.getElementById(id);
   if (!el) return null;
+
+  if (headerOnly) {
+    const r = el.getBoundingClientRect();
+    const h = Math.min(64, r.height);
+    const p = 4 + extraPad;
+    return { top: r.top - p, left: r.left - p, width: r.width + p * 2, height: h + p * 2 };
+  }
+
+  if (firstChildOnly) {
+    const firstRow = el.querySelector('tbody tr:first-child, .space-y-4 > div:first-child, .space-y-6 > div:first-child') as HTMLElement | null;
+    const target = firstRow || el;
+    const r = target.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > window.innerHeight) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const p = 4 + extraPad;
+    return { top: r.top - p, left: r.left - p, width: r.width + p * 2, height: Math.min(r.height + p * 2, 120) };
+  }
+
   const r = el.getBoundingClientRect();
-  return { top: r.top - 6, left: r.left - 6, width: r.width + 12, height: r.height + 12 };
+  const p = 4 + extraPad;
+  // clampHeight=false → bao hết toàn bộ, clampHeight=true → giới hạn 160px
+  const h = clampHeight === false ? r.height + p * 2 : Math.min(r.height + p * 2, 160);
+  return { top: r.top - p, left: r.left - p, width: r.width + p * 2, height: h };
 }
 
-/**
- * Tính vị trí tooltip sao cho luôn nằm trong viewport.
- * Ưu tiên: phải → trái → dưới → trên → giữa màn hình
- */
 function calcTooltipPos(rect: Rect): React.CSSProperties {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-
   const centerY = rect.top + rect.height / 2;
 
-  // Thử bên PHẢI
   if (rect.left + rect.width + GAP + TOOLTIP_W <= vw) {
     const top = Math.min(Math.max(centerY - TOOLTIP_H / 2, 12), vh - TOOLTIP_H - 12);
     return { top, left: rect.left + rect.width + GAP };
   }
-
-  // Thử bên TRÁI
   if (rect.left - GAP - TOOLTIP_W >= 0) {
     const top = Math.min(Math.max(centerY - TOOLTIP_H / 2, 12), vh - TOOLTIP_H - 12);
     return { top, left: rect.left - GAP - TOOLTIP_W };
   }
-
-  // Thử bên DƯỚI
   const centerX = rect.left + rect.width / 2;
   if (rect.top + rect.height + GAP + TOOLTIP_H <= vh) {
     const left = Math.min(Math.max(centerX - TOOLTIP_W / 2, 12), vw - TOOLTIP_W - 12);
     return { top: rect.top + rect.height + GAP, left };
   }
-
-  // Thử bên TRÊN
   if (rect.top - GAP - TOOLTIP_H >= 0) {
     const left = Math.min(Math.max(centerX - TOOLTIP_W / 2, 12), vw - TOOLTIP_W - 12);
     return { top: rect.top - GAP - TOOLTIP_H, left };
   }
-
-  // Fallback: giữa màn hình
-  return {
-    top: vh / 2 - TOOLTIP_H / 2,
-    left: vw / 2 - TOOLTIP_W / 2,
-  };
+  return { top: vh / 2 - TOOLTIP_H / 2, left: vw / 2 - TOOLTIP_W / 2 };
 }
 
-/** Đợi element xuất hiện trong DOM, tối đa maxMs */
-function waitForElement(id: string, maxMs = 1200): Promise<HTMLElement | null> {
+function waitForElement(id: string, maxMs = 1500): Promise<HTMLElement | null> {
   return new Promise((resolve) => {
     const el = document.getElementById(id);
     if (el) { resolve(el); return; }
-
     const start = Date.now();
     const check = () => {
       const found = document.getElementById(id);
@@ -194,19 +189,15 @@ function waitForElement(id: string, maxMs = 1200): Promise<HTMLElement | null> {
   });
 }
 
-async function scrollAndGetRect(id: string): Promise<Rect | null> {
+async function scrollAndGetRect(id: string, firstChildOnly = false, headerOnly = false, clampHeight = true, extraPad = 0): Promise<Rect | null> {
   const el = await waitForElement(id);
   if (!el) return null;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  // Đợi scroll animation (~350ms)
-  await new Promise(r => setTimeout(r, 360));
-  return getRect(id);
+  el.scrollIntoView({ behavior: 'smooth', block: headerOnly ? 'start' : 'center' });
+  await new Promise(r => setTimeout(r, 380));
+  return getRect(id, firstChildOnly, headerOnly, clampHeight, extraPad);
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 type Phase = 'sidebar' | 'detail';
-
 interface Props { onNavigate: (path: string) => void }
 
 const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
@@ -218,7 +209,6 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
   const [opacity, setOpacity] = useState(1);
 
-  // Refs để tránh stale closure
   const sIdx = useRef(0);
   const dIdx = useRef(0);
   const phaseRef = useRef<Phase>('sidebar');
@@ -231,49 +221,37 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
     setVisible(false);
   }, []);
 
-  // ── Áp rect + tính tooltip position ────────────────────────────────────
   const applyRect = useCallback((rect: Rect | null) => {
     if (!rect) {
       setHighlight(null);
-      setTooltipStyle({
-        top: window.innerHeight / 2 - TOOLTIP_H / 2,
-        left: window.innerWidth / 2 - TOOLTIP_W / 2,
-      });
+      setTooltipStyle({ top: window.innerHeight / 2 - TOOLTIP_H / 2, left: window.innerWidth / 2 - TOOLTIP_W / 2 });
     } else {
       setHighlight(rect);
       setTooltipStyle(calcTooltipPos(rect));
     }
   }, []);
 
-  // ── Fade out → thực hiện fn → fade in ──────────────────────────────────
   const withFade = useCallback((fn: () => Promise<void> | void) => {
     setOpacity(0);
-    setTimeout(async () => {
-      await fn();
-      setOpacity(1);
-    }, 180);
+    setTimeout(async () => { await fn(); setOpacity(1); }, 180);
   }, []);
 
-  // ── Focus sidebar item ──────────────────────────────────────────────────
   const focusSidebar = useCallback(async (idx: number) => {
     const rect = await scrollAndGetRect(TOUR_STEPS[idx].sidebarItemId);
     applyRect(rect);
   }, [applyRect]);
 
-  // ── Navigate → đợi element → focus ─────────────────────────────────────
-  const navigateAndFocus = useCallback(async (path: string, targetId?: string) => {
+  const navigateAndFocus = useCallback(async (path: string, targetId?: string, firstChildOnly = false, headerOnly = false, clampHeight = true, extraPad = 0) => {
     onNavigate(path);
     if (targetId) {
-      const rect = await scrollAndGetRect(targetId);
+      const rect = await scrollAndGetRect(targetId, firstChildOnly, headerOnly, clampHeight, extraPad);
       applyRect(rect);
     } else {
-      // Không có target → đợi trang render rồi focus sidebar item hiện tại
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r => setTimeout(r, 450));
       applyRect(null);
     }
   }, [onNavigate, applyRect]);
 
-  // ── Init ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY)) return;
     const t = setTimeout(() => {
@@ -283,7 +261,6 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
     return () => clearTimeout(t);
   }, [focusSidebar]);
 
-  // ── Sidebar: Tiếp tục ───────────────────────────────────────────────────
   const handleSidebarNext = useCallback(() => {
     const cur = sIdx.current;
     if (cur >= TOUR_STEPS.length - 1) { dismiss(); return; }
@@ -296,18 +273,17 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
     });
   }, [dismiss, withFade, navigateAndFocus, focusSidebar]);
 
-  // ── Sidebar: Chi tiết ───────────────────────────────────────────────────
   const handleSidebarDetail = useCallback(() => {
     const cur = sIdx.current;
     const step = TOUR_STEPS[cur];
+    const d = step.details[0];
     withFade(async () => {
       setDetailIdx(0);
       setPhase('detail');
-      await navigateAndFocus(step.routePath, step.details[0]?.targetId);
+      await navigateAndFocus(step.routePath, d?.targetId, d?.firstChildOnly, d?.headerOnly, d?.clampHeight, d?.extraPad);
     });
   }, [withFade, navigateAndFocus]);
 
-  // ── Detail: Tiếp tục ────────────────────────────────────────────────────
   const handleDetailNext = useCallback(() => {
     const si = sIdx.current;
     const di = dIdx.current;
@@ -316,9 +292,9 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
       withFade(async () => {
         const next = di + 1;
         setDetailIdx(next);
-        const targetId = TOUR_STEPS[si].details[next].targetId;
-        if (targetId) {
-          const rect = await scrollAndGetRect(targetId);
+        const d = TOUR_STEPS[si].details[next];
+        if (d.targetId) {
+          const rect = await scrollAndGetRect(d.targetId, d.firstChildOnly, d.headerOnly, d.clampHeight, d.extraPad);
           applyRect(rect);
         } else {
           applyRect(null);
@@ -329,7 +305,6 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
     }
   }, [withFade, applyRect]); // eslint-disable-line
 
-  // ── Detail: Bỏ qua → sang sidebar tiếp ────────────────────────────────
   const handleDetailSkip = useCallback(() => {
     const cur = sIdx.current;
     if (cur >= TOUR_STEPS.length - 1) { dismiss(); return; }
@@ -352,73 +327,53 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
 
   return createPortal(
     <>
-      {/* ── Overlay ── */}
-      <div className="fixed inset-0 z-[9998] pointer-events-none" style={{ transition: 'opacity 0.18s' }}>
+      {/* Overlay */}
+      <div className="fixed inset-0 z-[9998] pointer-events-none">
         <svg width="100%" height="100%" className="absolute inset-0">
           <defs>
             <mask id="tour-mask">
               <rect width="100%" height="100%" fill="white" />
               {highlight && (
-                <rect
-                  x={highlight.left} y={highlight.top}
-                  width={highlight.width} height={highlight.height}
-                  rx="14" fill="black"
-                  style={{ transition: 'all 0.28s cubic-bezier(0.4,0,0.2,1)' }}
-                />
+                <rect x={highlight.left} y={highlight.top} width={highlight.width} height={highlight.height}
+                  rx="14" fill="black" style={{ transition: 'all 0.28s cubic-bezier(0.4,0,0.2,1)' }} />
               )}
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="rgba(0,0,0,0.50)" mask="url(#tour-mask)" />
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.52)" mask="url(#tour-mask)" />
         </svg>
       </div>
 
-      {/* ── Highlight border ── */}
+      {/* Highlight border */}
       {highlight && (
-        <div
-          className="fixed z-[9999] pointer-events-none rounded-[14px] border-2 border-primary"
-          style={{
-            top: highlight.top, left: highlight.left,
-            width: highlight.width, height: highlight.height,
-            transition: 'all 0.28s cubic-bezier(0.4,0,0.2,1)',
-            animation: 'tour-pulse 1.8s ease-in-out infinite',
-          }}
-        />
+        <div className="fixed z-[9999] pointer-events-none rounded-[14px] border-2 border-primary"
+          style={{ top: highlight.top, left: highlight.left, width: highlight.width, height: highlight.height,
+            transition: 'all 0.28s cubic-bezier(0.4,0,0.2,1)', animation: 'tour-pulse 1.8s ease-in-out infinite' }} />
       )}
 
-      {/* ── Tooltip ── */}
-      <div
-        className="fixed z-[10000] pointer-events-auto"
-        style={{
-          ...tooltipStyle,
-          width: TOOLTIP_W,
-          transition: 'top 0.28s cubic-bezier(0.4,0,0.2,1), left 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.18s ease',
-          opacity,
-        }}
-      >
+      {/* Tooltip */}
+      <div className="fixed z-[10000] pointer-events-auto"
+        style={{ ...tooltipStyle, width: TOOLTIP_W,
+          transition: 'top 0.28s cubic-bezier(0.4,0,0.2,1), left 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.18s ease', opacity }}>
         <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
 
           {/* Header */}
           <div className="bg-gradient-to-r from-primary/10 to-green-50 px-5 pt-4 pb-3 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              {phase === 'detail'
-                ? <BookOpen className="size-4 text-primary shrink-0" />
-                : <Sparkles className="size-4 text-primary shrink-0" />
-              }
+              {phase === 'detail' ? <BookOpen className="size-4 text-primary shrink-0" /> : <Sparkles className="size-4 text-primary shrink-0" />}
               <p className="text-[10px] font-black text-primary uppercase tracking-widest truncate">
                 {phase === 'sidebar'
-                  ? `Mục ${sidebarIdx + 1}/${TOUR_STEPS.length}`
-                  : `Chi tiết ${detailIdx + 1}/${currentSidebar.details.length}`
-                }
+                  ? `Mục ${sidebarIdx + 1}/${TOUR_STEPS.length} — ${currentSidebar.title}`
+                  : `Chi tiết ${detailIdx + 1}/${currentSidebar.details.length}`}
               </p>
             </div>
-            <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0" title="Thoát">
+            <button onClick={dismiss} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0" title="Thoát hướng dẫn">
               <X className="size-4" />
             </button>
           </div>
 
           {/* Body */}
           <div className="px-5 py-4">
-            <h3 className="text-sm font-black text-gray-900 mb-1.5">
+            <h3 className="text-sm font-black text-gray-900 mb-2">
               {phase === 'sidebar' ? currentSidebar.title : currentDetail.label}
             </h3>
             <p className="text-xs text-gray-500 leading-relaxed">
@@ -431,12 +386,8 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
             {(phase === 'sidebar' ? TOUR_STEPS : currentSidebar.details).map((_, i) => {
               const active = phase === 'sidebar' ? sidebarIdx : detailIdx;
               return (
-                <div
-                  key={i}
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    i === active ? 'bg-primary w-5' : i < active ? 'bg-primary/40 w-2' : 'bg-gray-200 w-2'
-                  }`}
-                />
+                <div key={i} className={`h-1 rounded-full transition-all duration-300 ${
+                  i === active ? 'bg-primary w-5' : i < active ? 'bg-primary/40 w-2' : 'bg-gray-200 w-2'}`} />
               );
             })}
           </div>
@@ -446,7 +397,7 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
             {phase === 'sidebar' ? (
               <>
                 <button onClick={dismiss} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-400 hover:bg-gray-50 transition-colors">
-                  Không cần
+                  Bỏ qua
                 </button>
                 <button onClick={handleSidebarDetail} className="flex-1 py-2.5 rounded-xl border border-primary/30 text-xs font-bold text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1">
                   <BookOpen className="size-3.5" /> Chi tiết
@@ -458,32 +409,23 @@ const OnboardingTour: React.FC<Props> = ({ onNavigate }) => {
             ) : (
               <>
                 <button onClick={handleDetailSkip} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-400 hover:bg-gray-50 transition-colors">
-                  Bỏ qua
+                  Bỏ qua mục này
                 </button>
-                <button onClick={handleDetailNext} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-xs font-black flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors shadow-sm shadow-primary/30">
-                  {isLastDetail ? 'Xong mục này' : 'Tiếp tục'}<ChevronRight className="size-3.5" />
+                <button onClick={handleDetailNext} className="flex-[2] py-2.5 rounded-xl bg-primary text-white text-xs font-black flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors shadow-sm shadow-primary/30">
+                  {isLastDetail ? '✓ Xong mục này' : 'Tiếp tục'}<ChevronRight className="size-3.5" />
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {/* Mũi tên — chỉ hiện khi tooltip ở bên phải element */}
-        {highlight && tooltipStyle.left !== undefined &&
-          Number(tooltipStyle.left) > highlight.left + highlight.width && (
-          <div
-            className="absolute -left-2 pointer-events-none"
-            style={{
-              top: Math.min(Math.max((Number(tooltipStyle.top ?? 0) > 0
-                ? highlight.top + highlight.height / 2 - Number(tooltipStyle.top)
-                : TOOLTIP_H / 2) - 8, 16), TOOLTIP_H - 32),
-              width: 0, height: 0,
-              borderTop: '8px solid transparent',
-              borderBottom: '8px solid transparent',
-              borderRight: '8px solid white',
-              filter: 'drop-shadow(-2px 0 2px rgba(0,0,0,0.07))',
-            }}
-          />
+        {/* Arrow */}
+        {highlight && tooltipStyle.left !== undefined && Number(tooltipStyle.left) > highlight.left + highlight.width && (
+          <div className="absolute -left-2 pointer-events-none"
+            style={{ top: Math.min(Math.max((Number(tooltipStyle.top ?? 0) > 0
+              ? highlight.top + highlight.height / 2 - Number(tooltipStyle.top) : TOOLTIP_H / 2) - 8, 16), TOOLTIP_H - 32),
+              width: 0, height: 0, borderTop: '8px solid transparent', borderBottom: '8px solid transparent',
+              borderRight: '8px solid white', filter: 'drop-shadow(-2px 0 2px rgba(0,0,0,0.07))' }} />
         )}
       </div>
 

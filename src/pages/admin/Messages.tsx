@@ -129,9 +129,9 @@ const AdminMessages: React.FC = () => {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Conversations List */}
-        <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
+        <div id="tour-messages-list" className="w-96 bg-white border-r border-gray-200 flex flex-col">
           {/* Search */}
-          <div className="p-4 border-b border-gray-100">
+          <div id="tour-messages-search" className="p-4 border-b border-gray-100">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
               <input
@@ -156,9 +156,10 @@ const AdminMessages: React.FC = () => {
                 <p className="text-sm font-semibold">Chưa có tin nhắn nào</p>
               </div>
             ) : (
-              filteredConversations.map((conv) => (
+              filteredConversations.map((conv, idx) => (
                 <button
                   key={conv.id}
+                  id={idx === 0 ? 'tour-messages-first-conv' : undefined}
                   onClick={() => loadChatHistory(conv)}
                   className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-left ${
                     selectedConversation?.id === conv.id ? 'bg-primary/5' : ''

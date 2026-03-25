@@ -284,7 +284,7 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
               </div>
               <h4 className="font-black text-gray-800 uppercase tracking-tight">Chi tiết tài chính</h4>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div id="tour-overview-finance-cards" className="grid grid-cols-2 gap-4">
               <div className="p-6 bg-gray-50/50 rounded-2xl border border-gray-100">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Số dư khả dụng</p>
                 <h3 className="text-2xl font-black text-gray-900 mt-1">{frozenBalance.toLocaleString('vi-VN')}đ</h3>
