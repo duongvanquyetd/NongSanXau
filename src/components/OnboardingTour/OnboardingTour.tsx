@@ -113,7 +113,7 @@ const TOUR_STEPS: SidebarStep[] = [
   },
 ];
 
-const STORAGE_KEY = 'farmer_onboarding_done_v6';
+const STORAGE_KEY = 'farmer_onboarding_done';
 const TOOLTIP_W = 300;
 const TOOLTIP_H = 280;
 const GAP = 14;

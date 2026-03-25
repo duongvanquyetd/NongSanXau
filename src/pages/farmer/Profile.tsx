@@ -244,7 +244,7 @@ const Profile: React.FC = () => {
               {/* Nút xem hướng dẫn */}
               <button
                 onClick={() => {
-                  localStorage.removeItem('farmer_onboarding_done_v6');
+                  localStorage.removeItem('farmer_onboarding_done');
                   window.location.reload();
                 }}
                 className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border border-primary/20 text-primary rounded-xl text-xs font-black hover:bg-primary/5 transition-all shadow-sm"
