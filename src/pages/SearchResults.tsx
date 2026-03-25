@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { productService, ProductResponse, mysteryBoxService, MysteryBox, comboService, BuildComboResponse, reviewService, ReviewResponse } from '../services';
+import { productService, ProductResponse, mysteryBoxService, MysteryBox, reviewService, ReviewResponse } from '../services';
 import {
   Star,
   MapPin,
@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
-  ChefHat,
   Award,
   SlidersHorizontal,
 } from 'lucide-react';
@@ -28,7 +27,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBox[]>([]);
-  const [combos, setCombos] = useState<BuildComboResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortOption>('popular');
@@ -47,10 +45,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [productsRes, boxesRes, combosRes] = await Promise.all([
+        const [productsRes, boxesRes] = await Promise.all([
           productService.getAll().catch(() => ({ result: [] })),
           mysteryBoxService.getAll().catch(() => ({ result: [] })),
-          comboService.getAll().catch(() => ({ result: [] })),
         ]);
 
         if (productsRes?.result && Array.isArray(productsRes.result)) {
@@ -96,9 +93,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
         if (boxesRes?.result && Array.isArray(boxesRes.result)) {
           setMysteryBoxes(boxesRes.result.filter((b: MysteryBox) => b && b.isActive !== false && b.isActive !== 0));
         }
-        if (combosRes?.result && Array.isArray(combosRes.result)) {
-          setCombos(combosRes.result.filter((c: BuildComboResponse) => c && c.id));
-        }
       } catch (err) {
         console.error('Failed to fetch data:', err);
       } finally {
@@ -133,23 +127,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
       )
       : mysteryBoxes;
 
-    let filteredCombos = searchQuery
-      ? combos.filter(c =>
-        c && c.comboName && (
-          c.comboName.toLowerCase().includes(lowQuery) ||
-          (c.description && c.description.toLowerCase().includes(lowQuery)) ||
-          (c.items && Array.isArray(c.items) && c.items.some(item => item && item.productName && item.productName.toLowerCase().includes(lowQuery)))
-        )
-      )
-      : combos;
-
     // Filter by Category
     if (selectedCategoryId !== null) {
       filteredProducts = filteredProducts.filter(p => p.categoryId === selectedCategoryId);
-      // Blind boxes and combos don't have categoryId usually, or it's different. 
-      // Based on UI request, categories usually apply to products.
       filteredBoxes = [];
-      filteredCombos = [];
     }
 
     // Filter by price
@@ -169,36 +150,25 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
         if (priceFilter === 'over-200k') return price > 200000;
         return true;
       });
-
-      filteredCombos = filteredCombos.filter(c => {
-        const price = c.discountPrice || 0;
-        if (priceFilter === 'under-50k') return price < 50000;
-        if (priceFilter === '50k-200k') return price >= 50000 && price <= 200000;
-        if (priceFilter === 'over-200k') return price > 200000;
-        return true;
-      });
     }
 
     // Filter by rating (mock rating for now)
     if (minRating > 0) {
       // Since we don't have real ratings, we'll keep all items
-      // In production, you would filter based on actual rating data
     }
 
     return {
       products: filteredProducts,
       boxes: filteredBoxes,
-      combos: filteredCombos,
-      total: filteredProducts.length + filteredBoxes.length + filteredCombos.length,
+      total: filteredProducts.length + filteredBoxes.length,
     };
-  }, [products, mysteryBoxes, combos, searchQuery, priceFilter, minRating, selectedCategoryId]);
+  }, [products, mysteryBoxes, searchQuery, priceFilter, minRating, selectedCategoryId]);
 
   // Combine and sort all results
   const allResults = useMemo(() => {
     const combined = [
       ...filteredResults.products.map(p => ({ type: 'product' as const, data: p, price: p.sellingPrice || 0, name: p.productName || '' })),
       ...filteredResults.boxes.map(b => ({ type: 'box' as const, data: b, price: b.price || 0, name: b.boxType || '' })),
-      ...filteredResults.combos.map(c => ({ type: 'combo' as const, data: c, price: c.discountPrice || 0, name: c.comboName || '' })),
     ];
 
     // Sort based on selected option
@@ -512,7 +482,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
                       </div>
                     </div>
                   );
-                } else if (result.type === 'box') {
+                } else {
                   const box = result.data as MysteryBox;
                   return (
                     <div
@@ -551,64 +521,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
                           <span className="text-xl font-black text-gray-900">
                             {(box.price || 0).toLocaleString('vi-VN')}đ
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                } else {
-                  const combo = result.data as BuildComboResponse;
-                  const items = combo.items || [];
-                  const totalOriginal = items.reduce((sum, item) => sum + (item?.price || 0) * (item?.quantity || 0), 0);
-                  const savings = totalOriginal - (combo.discountPrice || 0);
-                  return (
-                    <div
-                      key={`combo-${combo.id}`}
-                      onClick={() => onSelectProduct(`combo-${combo.id}`)}
-                      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all overflow-hidden group cursor-pointer flex flex-col"
-                    >
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center gap-3">
-                        <div className="size-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                          <ChefHat className="size-6 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-black text-gray-900 text-sm truncate group-hover:text-primary transition-colors">
-                            {combo.comboName || 'Combo'}
-                          </h4>
-                          {combo.region && (
-                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-white/80 text-primary border border-primary/20 inline-block mt-1">
-                              {combo.region === 'MIEN_BAC' ? '🌿 Bắc' : combo.region === 'MIEN_TRUNG' ? '🌶 Trung' : '🥥 Nam'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-4 space-y-1.5 flex-1 flex flex-col">
-                        {items.slice(0, 2).map((item, idx) => (
-                          <div key={item?.productId || idx} className="flex items-center justify-between text-xs">
-                            <span className="text-gray-700 font-medium truncate flex-1 pr-2">
-                              • {item?.productName || 'Sản phẩm'}
-                            </span>
-                            <span className="text-gray-500 font-bold whitespace-nowrap">x{item?.quantity || 0}</span>
-                          </div>
-                        ))}
-                        {items.length > 2 && (
-                          <p className="text-[10px] text-gray-400 font-bold">+{items.length - 2} sản phẩm</p>
-                        )}
-                        <div className="pt-3 border-t border-gray-100 mt-auto">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xl font-black text-gray-900">
-                              {(combo.discountPrice || 0).toLocaleString('vi-VN')}đ
-                            </span>
-                            {savings > 0 && totalOriginal > 0 && (
-                              <span className="bg-red-100 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full">
-                                -{Math.round((savings / totalOriginal) * 100)}%
-                              </span>
-                            )}
-                          </div>
-                          {savings > 0 && (
-                            <p className="text-[10px] text-green-600 font-bold">
-                              Tiết kiệm {savings.toLocaleString('vi-VN')}đ
-                            </p>
-                          )}
                         </div>
                       </div>
                     </div>

@@ -6,7 +6,6 @@ import FarmerDashboard from '../pages/farmer/Dashboard';
 import Products from '../pages/farmer/Products';
 import AddProduct from '../pages/farmer/AddProduct';
 import EditProduct from '../pages/farmer/EditProduct';
-import ComboBuilder from '../pages/farmer/ComboBuilder';
 import MysteryBoxEditor from '../pages/farmer/MysteryBoxEditor';
 import FarmerNotifications from '../pages/farmer/Notifications';
 import Reviews from '../pages/farmer/Reviews';
@@ -40,11 +39,6 @@ const EditProductWrapper = () => {
     const { productId } = useParams();
     if (!productId) return <Navigate to="/farmer/products" replace />;
     return <EditProduct productId={Number(productId)} onBack={() => navigate('/farmer/products')} />;
-};
-
-const ComboBuilderWrapper = () => {
-    const navigate = useNavigate();
-    return <ComboBuilder onBack={() => navigate('/farmer/products')} />;
 };
 
 const MysteryBoxEditorWrapper = () => {
@@ -92,8 +86,6 @@ const FarmerRoutes = () => {
             <Route path="products" element={<ProductsWrapper />} />
             <Route path="add-product" element={<AddProductWrapper />} />
             <Route path="edit-product/:productId" element={<EditProductWrapper />} />
-            <Route path="combo-builder" element={<ComboBuilderWrapper />} />
-            <Route path="combo-builder/:comboId" element={<ComboBuilderWrapper />} />
             <Route path="mystery-box-editor" element={<MysteryBoxEditorWrapper />} />
             <Route path="mystery-box-editor/:boxId" element={<MysteryBoxEditorWrapper />} />
             <Route path="wallet" element={<Wallet />} />

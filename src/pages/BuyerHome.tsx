@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { productService, ProductResponse, mysteryBoxService, MysteryBox, comboService, BuildComboResponse, reviewService } from '../services';
+import { productService, ProductResponse, mysteryBoxService, MysteryBox, reviewService } from '../services';
 import {
   Star,
   MapPin,
@@ -15,8 +15,6 @@ import {
   Grape,
   Loader2,
   Package,
-  ChefHat,
-  Tag,
   SearchX,
   X,
 } from 'lucide-react';
@@ -33,10 +31,8 @@ const BuyerHome: React.FC<BuyerHomeProps> = ({ onSelectProduct, isAuthenticated 
   const [featuredStory, setFeaturedStory] = useState<string>('Đang tải câu chuyện nông sản...');
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBox[]>([]);
-  const [combos, setCombos] = useState<BuildComboResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingBoxes, setIsLoadingBoxes] = useState(false);
-  const [isLoadingCombos, setIsLoadingCombos] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [productRatings, setProductRatings] = useState<Record<number, { average: number; count: number }>>({});
 
@@ -126,21 +122,6 @@ const BuyerHome: React.FC<BuyerHomeProps> = ({ onSelectProduct, isAuthenticated 
 
     fetchProducts();
     fetchBoxes();
-
-    const fetchCombos = async () => {
-      try {
-        setIsLoadingCombos(true);
-        const response = await comboService.getAll();
-        if (response.result) {
-          setCombos(response.result);
-        }
-      } catch (err) {
-        console.error('Failed to fetch combos:', err);
-      } finally {
-        setIsLoadingCombos(false);
-      }
-    };
-    fetchCombos();
   }, []);
 
   // Filter products based on search query
@@ -264,99 +245,6 @@ const BuyerHome: React.FC<BuyerHomeProps> = ({ onSelectProduct, isAuthenticated 
             </div>
           </div>
 
-          {/* Combo Section */}
-          {(isLoadingCombos || combos.length > 0) && (
-            <div className="mb-16">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex flex-col gap-1">
-                  <h2 className="text-3xl font-black tracking-tight text-gray-900 uppercase font-display">Combo nấu ăn</h2>
-                  <p className="text-primary font-bold flex items-center gap-2">
-                    <Tag className="size-4" /> Tiết kiệm hơn khi mua theo combo
-                  </p>
-                </div>
-                <button onClick={() => navigate('/combos')} className="text-primary font-bold flex items-center gap-2 hover:underline group">
-                  Xem tất cả <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-
-              {isLoadingCombos ? (
-                <div className="py-10 text-center text-gray-400 font-bold uppercase tracking-widest text-[10px]">Đang tải combo...</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {combos.slice(0, 3).map((combo) => {
-                    const totalOriginal = combo.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-                    const savings = totalOriginal - combo.discountPrice;
-                    return (
-                      <div
-                        key={combo.id}
-                        onClick={() => onSelectProduct(`combo-${combo.id}`)}
-                        className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-100 flex flex-col group p-4 cursor-pointer"
-                      >
-                        {/* Image area */}
-                        <div className="relative h-48 rounded-xl bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center mb-6 overflow-hidden">
-                          {combo.imageUrl ? (
-                            <img src={combo.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={combo.comboName} />
-                          ) : (
-                            <ChefHat className="size-20 text-green-200 group-hover:scale-110 transition-transform duration-500" />
-                          )}
-                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
-                            <ChefHat className="size-3 text-green-600" />
-                            <span className="text-[10px] font-bold uppercase">Combo nấu ăn</span>
-                          </div>
-                          {combo.region && (
-                            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-full shadow-sm">
-                              <span className="text-[10px] font-black text-primary">
-                                {combo.region === 'MIEN_BAC' ? '🌿 Bắc' : combo.region === 'MIEN_TRUNG' ? '🌶 Trung' : '🥥 Nam'}
-                              </span>
-                            </div>
-                          )}
-                          {savings > 0 && (
-                            <div className="absolute bottom-3 left-3 bg-red-500 text-white px-2 py-1 rounded-lg flex items-center gap-1">
-                              <Tag className="size-3" />
-                              <span className="text-[10px] font-black">-{Math.round((savings / totalOriginal) * 100)}%</span>
-                            </div>
-                          )}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onSelectProduct(`combo-${combo.id}`); }}
-                            className="absolute bottom-3 right-3 size-10 bg-primary text-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100"
-                          >
-                            <ShoppingCart className="size-5" />
-                          </button>
-                        </div>
-                        <div className="flex flex-col gap-3">
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-extrabold text-lg text-gray-900 truncate pr-2 uppercase tracking-tight">{combo.comboName}</h4>
-                            <span className="text-primary font-black text-xl whitespace-nowrap">{combo.discountPrice.toLocaleString('vi-VN')}đ</span>
-                          </div>
-                          <p className="text-xs text-gray-500 font-medium line-clamp-2 min-h-[32px]">{combo.description || `${combo.items.length} nguyên liệu tươi ngon`}</p>
-                          <div className="space-y-1">
-                            {combo.items.slice(0, 2).map((item) => (
-                              <div key={item.productId} className="flex items-center justify-between text-xs text-gray-500">
-                                <span className="truncate">• {item.productName}</span>
-                                <span className="font-bold ml-2">x{item.quantity}</span>
-                              </div>
-                            ))}
-                            {combo.items.length > 2 && (
-                              <p className="text-[10px] text-gray-400 font-bold">+{combo.items.length - 2} nguyên liệu khác</p>
-                            )}
-                          </div>
-                          {savings > 0 && (
-                            <p className="text-xs text-green-600 font-bold">Tiết kiệm {savings.toLocaleString('vi-VN')}đ</p>
-                          )}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onSelectProduct(`combo-${combo.id}`); }}
-                            className="w-full bg-primary hover:bg-primary-dark text-white font-black py-3 rounded-xl transition-all mt-2 active:scale-95"
-                          >
-                            CHỌN COMBO NÀY
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 

@@ -153,7 +153,7 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
 
       <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
         {/* Tabs */}
-        <div className="px-10 py-2 border-b border-gray-50 flex items-center gap-8 overflow-x-auto custom-scrollbar">
+        <div id="tour-orders-tabs" className="px-10 py-2 border-b border-gray-50 flex items-center gap-8 overflow-x-auto custom-scrollbar">
           {tabs.map((tab) => {
             const count = tab.statuses.length === 0
               ? orders.length
@@ -167,7 +167,7 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
           })}
         </div>
 
-        <div className="p-8 space-y-6">
+        <div id="tour-orders-list" className="p-8 space-y-6">
           {filteredOrders.length === 0 ? (
             <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">
               Không tìm thấy đơn hàng nào.

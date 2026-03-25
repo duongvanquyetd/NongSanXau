@@ -2,6 +2,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
+import OnboardingTour from '../components/OnboardingTour/OnboardingTour';
 import { useAuth } from '../contexts/AuthContext';
 import { AppRole } from '../types';
 
@@ -31,6 +32,7 @@ const FarmerLayout: React.FC = () => {
             <main className="flex-1 overflow-y-auto bg-background">
                 <Outlet />
             </main>
+            <OnboardingTour onNavigate={handleNavigate} />
         </div>
     );
 };

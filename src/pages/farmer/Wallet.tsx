@@ -122,6 +122,7 @@ const Wallet: React.FC = () => {
                <p className="text-slate-500 text-sm">Theo dõi doanh thu và quản lý các yêu cầu rút tiền của bạn</p>
             </div>
             <button
+               id="tour-wallet-withdraw-btn"
                onClick={() => setIsWithdrawModalOpen(true)}
                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20"
             >
@@ -138,7 +139,7 @@ const Wallet: React.FC = () => {
          )}
 
          {/* Revenue Metrics */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <div id="tour-wallet-cards" className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Total Revenue Card */}
             <div className="relative overflow-hidden group rounded-2xl p-8 bg-white border border-slate-200 shadow-sm transition-all hover:shadow-md">
                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
@@ -189,7 +190,7 @@ const Wallet: React.FC = () => {
          </div>
 
          {/* Recent Requests Table */}
-         <div className="space-y-4">
+         <div id="tour-wallet-history" className="space-y-4">
             <div className="flex items-center justify-between">
                <h2 className="text-xl font-bold text-slate-900">Yêu cầu rút tiền gần đây</h2>
                <button className="text-primary text-sm font-bold hover:underline">Xem tất cả</button>

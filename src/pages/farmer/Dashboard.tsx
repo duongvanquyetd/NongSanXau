@@ -1,15 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
-import { ShoppingCart, TrendingUp, Star, Wallet, Package, Clock, MoreVertical, Plus, Sparkles, Landmark, History, ChefHat, Loader2, AlertCircle } from 'lucide-react';
-import { productService, orderService, walletService, authService, comboService, mysteryBoxService, ProductResponse, OrderResponse, WalletResponse, BuildComboResponse, MysteryBox } from '../../services';
+import { ShoppingCart, TrendingUp, Star, Wallet, Package, MoreVertical, Sparkles, Landmark, History, Loader2, AlertCircle } from 'lucide-react';
+import { productService, orderService, walletService, authService, mysteryBoxService, ProductResponse, OrderResponse, WalletResponse, MysteryBox } from '../../services';
 
 const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }) => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
-  const [combos, setCombos] = useState<BuildComboResponse[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBox[]>([]);
-  const [activeTab, setActiveTab] = useState<'NONG_SAN' | 'COMBO' | 'BLIND_BOX'>('NONG_SAN');
+  const [activeTab, setActiveTab] = useState<'NONG_SAN' | 'BLIND_BOX'>('NONG_SAN');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,15 +21,13 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
         const userInfo = await authService.getMyInfo();
         const shopId = userInfo.result?.id;
 
-        const [productsRes, ordersRes, walletRes, combosRes, mysteryBoxesRes] = await Promise.all([
+        const [productsRes, ordersRes, walletRes, mysteryBoxesRes] = await Promise.all([
           (shopId ? productService.getByShopId(shopId) : productService.getAll())
             .catch(e => { console.error('Products fetch error', e); return { result: [] }; }),
           orderService.getAllOrders()
             .catch(e => { console.error('Orders fetch error', e); return { result: [] }; }),
           walletService.getMyWallet()
             .catch(e => { console.error('Wallet fetch error', e); return { result: null }; }),
-          (shopId ? comboService.getMyCombos() : Promise.resolve({ result: [] }))
-            .catch(e => { console.error('Combos fetch error', e); return { result: [] }; }),
           mysteryBoxService.getMyBoxes()
             .catch(e => { console.error('Mystery boxes fetch error', e); return { result: [] }; }),
         ]);
@@ -38,7 +35,6 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
         if (productsRes.result) setProducts(Array.isArray(productsRes.result) ? productsRes.result : [productsRes.result]);
         if (ordersRes.result) setOrders(Array.isArray(ordersRes.result) ? ordersRes.result : [ordersRes.result]);
         if (walletRes.result) setWallet(walletRes.result as WalletResponse);
-        if (combosRes.result) setCombos(Array.isArray(combosRes.result) ? combosRes.result : [combosRes.result]);
         if (mysteryBoxesRes.result) setMysteryBoxes(Array.isArray(mysteryBoxesRes.result) ? mysteryBoxesRes.result : [mysteryBoxesRes.result]);
       } catch (err) {
         console.error('Failed to load dashboard data', err);
@@ -51,9 +47,7 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
   }, []);
 
   const totalOrders = orders.length;
-  const walletBalance = wallet?.totalBalance || 0;
   const frozenBalance = wallet?.frozenBalance || 0;
-  const totalCombos = combos.length;
   const totalBlindBoxes = mysteryBoxes.length;
 
   if (loading) {
@@ -91,11 +85,10 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
       )}
 
 {/* Stats Grid */}
-<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<div id="tour-overview-stats" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
   {[
     { label: 'Tổng đơn hàng', value: totalOrders.toLocaleString('vi-VN'), trend: `${products.length} sản phẩm`, icon: ShoppingCart },
     { label: 'Sản phẩm đang bán', value: products.length.toString(), trend: 'Đang hoạt động', icon: TrendingUp },
-    { label: 'Combo Đã Tạo', value: totalCombos.toString(), trend: 'Tự chọn', icon: ChefHat },
     { label: 'Hộp mù (Blind Box)', value: totalBlindBoxes.toString(), trend: 'Giải cứu nông sản', icon: Sparkles },
     { label: 'Chất lượng Shop', value: '98%', trend: 'Top 5%', icon: Star, bar: 98 },
     { label: 'Số dư khả dụng', value: `${frozenBalance.toLocaleString('vi-VN')}đ`, icon: Wallet, isPrimary: true, frozen: `${frozenBalance.toLocaleString('vi-VN')}đ` },
@@ -165,7 +158,7 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Product Management Section */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+          <div id="tour-overview-products" className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
@@ -182,12 +175,6 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
                   className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'NONG_SAN' ? 'bg-primary/5 text-primary border-b-2 border-primary' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'}`}
                 >
                   Nông Sản ({products.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('COMBO')}
-                  className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'COMBO' ? 'bg-orange-50 text-orange-600 border-b-2 border-orange-500' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'}`}
-                >
-                  Túi Combo ({totalCombos})
                 </button>
                 <button
                   onClick={() => setActiveTab('BLIND_BOX')}
@@ -240,38 +227,6 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
                     </tr>
                   ))}
 
-                  {/* Rendering Combos */}
-                  {activeTab === 'COMBO' && combos.slice(0, 5).map((c, i) => (
-                    <tr key={c.id || i} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-xl flex items-center justify-center text-white shadow-sm bg-orange-500">
-                            <ChefHat className="size-5" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold line-clamp-1 text-orange-600">{c.comboName}</p>
-                            <p className="text-[10px] text-gray-400 font-medium">Combo Tự Chọn</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center text-sm font-bold text-gray-700">{(c.discountPrice || 0).toLocaleString('vi-VN')}đ</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-full">{c.items?.length || 0} món</span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <span className="size-1.5 bg-green-500 rounded-full"></span>
-                          <span className="text-[11px] font-bold text-gray-600">Đang Mở</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="size-8 rounded-lg hover:bg-gray-100 flex items-center justify-center ml-auto">
-                          <MoreVertical className="size-4 text-gray-400" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-
                   {/* Rendering Blind Boxes */}
                   {activeTab === 'BLIND_BOX' && mysteryBoxes.slice(0, 5).map((box, i) => (
                     <tr key={box.id || i} className="hover:bg-gray-50/50 transition-colors">
@@ -309,11 +264,6 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
                       <td colSpan={5} className="px-6 py-8 text-center text-gray-400 font-bold text-sm">Chưa có sản phẩm nào. Hãy thêm sản phẩm mới!</td>
                     </tr>
                   )}
-                  {activeTab === 'COMBO' && combos.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-400 font-bold text-sm">Chưa có combo nào được tạo.</td>
-                    </tr>
-                  )}
                   {activeTab === 'BLIND_BOX' && mysteryBoxes.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-gray-400 font-bold text-sm">Chưa có hộp mù nào được tạo.</td>
@@ -321,13 +271,13 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
                   )}
                 </tbody>
               </table>
-              <button onClick={() => onNavigate(activeTab === 'NONG_SAN' ? 'products' : activeTab === 'COMBO' ? 'combo-list' : 'blind-box-list')} className="w-full py-4 text-primary text-xs font-bold hover:bg-primary/5 border-t border-gray-50 transition-all uppercase tracking-widest">
-                Xem chi tiết tất cả {activeTab === 'NONG_SAN' ? products.length : activeTab === 'COMBO' ? combos.length : mysteryBoxes.length} đối tượng
+              <button onClick={() => onNavigate(activeTab === 'NONG_SAN' ? 'products' : 'blind-box-list')} className="w-full py-4 text-primary text-xs font-bold hover:bg-primary/5 border-t border-gray-50 transition-all uppercase tracking-widest">
+                Xem chi tiết tất cả {activeTab === 'NONG_SAN' ? products.length : mysteryBoxes.length} đối tượng
               </button>
             </div>
           </div>
 
-          <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-6">
+          <div id="tour-overview-finance" className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                 <Landmark className="size-5" />
@@ -358,7 +308,7 @@ const FarmerDashboard: React.FC<{ onNavigate: (id: string) => void }> = ({ onNav
 
         {/* Sidebar Tool: Recent Orders */}
         <div className="flex flex-col gap-6">
-          <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 overflow-hidden relative">
+          <div id="tour-overview-orders" className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 overflow-hidden relative">
             <div className="flex items-center gap-3 mb-6">
               <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                 <ShoppingCart className="size-5" />

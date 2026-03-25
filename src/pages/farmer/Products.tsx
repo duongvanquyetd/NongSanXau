@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Edit3, EyeOff, Eye, Trash2, CheckCircle, Clock, AlertCircle, Loader2, X, Sparkles, ChefHat } from 'lucide-react';
-import { productService, comboService, mysteryBoxService, authService, ProductResponse, BuildComboResponse, MysteryBox } from '../../services';
+import { Plus, Search, Filter, Edit3, EyeOff, Eye, Trash2, CheckCircle, Clock, AlertCircle, Loader2, X, Sparkles } from 'lucide-react';
+import { productService, mysteryBoxService, authService, ProductResponse, MysteryBox } from '../../services';
 import Pagination, { PageInfo } from '../../components/ui/Pagination';
 import { globalShowAlert, globalShowConfirm } from '../../contexts/PopupContext';
 
@@ -8,9 +8,8 @@ const PAGE_SIZE = 10;
 
 const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }) => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
-  const [combos, setCombos] = useState<BuildComboResponse[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBox[]>([]);
-  const [activeTab, setActiveTab] = useState<'NONG_SAN' | 'COMBO' | 'BLIND_BOX'>('NONG_SAN');
+  const [activeTab, setActiveTab] = useState<'NONG_SAN' | 'BLIND_BOX'>('NONG_SAN');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -29,15 +28,13 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
       const id = userRes.result?.id;
       if (id) {
         setShopId(Number(id));
-        const [productsRes, combosRes, mysteryRes] = await Promise.all([
+        const [productsRes, mysteryRes] = await Promise.all([
           productService.getByShopId(Number(id)).catch(() => ({ result: [] })),
-          comboService.getMyCombos().catch(() => ({ result: [] })),
           mysteryBoxService.getMyBoxes().catch(() => ({ result: [] }))
         ]);
         if (productsRes.result) {
           setProducts(productsRes.result);
         }
-        if (combosRes.result) setCombos(combosRes.result);
         if (mysteryRes.result) setMysteryBoxes(mysteryRes.result);
       }
     } catch (err) {
@@ -67,21 +64,6 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
     }
   };
 
-  const handleDeleteCombo = async (id: number) => {
-    if (!await globalShowConfirm(`Bạn có chắc muốn xóa combo/hộp mù ID #${id}? Hành động này không thể hoàn tác.`)) return;
-
-    try {
-      setIsDeleting(true);
-      await comboService.delete(id);
-      globalShowAlert('Đã xóa thành công!', 'Thành công', 'success');
-      fetchData();
-    } catch (err: any) {
-      globalShowAlert(err?.data?.message || 'Có lỗi khi xóa combo/hộp mù', 'Lỗi', 'error');
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   const handleDeleteMysteryBox = async (id: number) => {
     if (!await globalShowConfirm(`Bạn có chắc muốn xóa hộp mù ID #${id}?`)) return;
     try {
@@ -94,10 +76,6 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleEditCombo = (id: number) => {
-    onNavigate(`combo-builder/${id}`);
   };
 
   const handleToggleBoxActive = async (box: MysteryBox) => {
@@ -131,11 +109,6 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
     return matchSearch && matchCategory && matchStatus;
   });
 
-  const filteredCombos = combos.filter(c => {
-    const matchSearch = c.comboName.toLowerCase().includes(searchQuery.toLowerCase()) || c.id.toString().includes(searchQuery);
-    return matchSearch;
-  });
-
   const filteredBoxes = mysteryBoxes.filter(b => {
     const matchSearch = b.boxType.toLowerCase().includes(searchQuery.toLowerCase()) || b.id.toString().includes(searchQuery);
     let matchStatus = true;
@@ -147,7 +120,6 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
   // Calculate generic derived state based on activeTab
   let displayItems: any[] = [];
   if (activeTab === 'NONG_SAN') displayItems = filteredProducts;
-  else if (activeTab === 'COMBO') displayItems = filteredCombos;
   else if (activeTab === 'BLIND_BOX') displayItems = filteredBoxes;
 
   const totalElements = displayItems.length;
@@ -175,12 +147,12 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-black font-display text-gray-900">Quản Lý Sản Phẩm</h2>
-          <p className="text-gray-400 font-medium text-sm mt-1">Cửa hàng của bạn đang có {products.length} sản phẩm, {combos.length} combo và {mysteryBoxes.length} hộp mù.</p>
+          <p className="text-gray-400 font-medium text-sm mt-1">Cửa hàng của bạn đang có {products.length} sản phẩm và {mysteryBoxes.length} hộp mù.</p>
         </div>
         <button 
+          id="tour-products-add-btn"
           onClick={() => {
-            if (activeTab === 'COMBO') onNavigate('combo-builder');
-            else if (activeTab === 'BLIND_BOX') onNavigate('mystery-box-editor');
+            if (activeTab === 'BLIND_BOX') onNavigate('mystery-box-editor');
             else onNavigate('add-product');
           }} 
           className="px-6 py-3 bg-primary text-white rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all"
@@ -190,18 +162,12 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white rounded-2xl p-1 border border-gray-100 shadow-sm w-fit">
+      <div id="tour-products-tabs" className="flex bg-white rounded-2xl p-1 border border-gray-100 shadow-sm w-fit">
         <button
           onClick={() => { setActiveTab('NONG_SAN'); setPage(0); setCategoryFilter(''); setStatusFilter(''); }}
           className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'NONG_SAN' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
         >
           NÔNG SẢN ({products.length})
-        </button>
-        <button
-          onClick={() => { setActiveTab('COMBO'); setPage(0); setCategoryFilter(''); setStatusFilter(''); }}
-          className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'COMBO' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
-        >
-          TÚI COMBO ({combos.length})
         </button>
         <button
           onClick={() => { setActiveTab('BLIND_BOX'); setPage(0); setCategoryFilter(''); setStatusFilter(''); }}
@@ -218,7 +184,7 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
         </div>
       )}
 
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+      <div id="tour-products-search" className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[300px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
@@ -248,7 +214,7 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
             </select>
           )}
 
-          {activeTab !== 'COMBO' && (
+          {activeTab !== 'BLIND_BOX' && (
             <select 
               value={statusFilter} 
               onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
@@ -274,7 +240,7 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div id="tour-products-table" className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50/50">
               <tr>
@@ -345,45 +311,6 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
                   </tr>
                 );
               })}
-
-              {/* Combo Rows */}
-              {activeTab === 'COMBO' && currentPageData.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="size-12 rounded-2xl flex items-center justify-center shadow-sm text-white bg-orange-500 overflow-hidden flex-shrink-0">
-                        {c.imageUrl
-                          ? <img src={c.imageUrl} className="w-full h-full object-cover" alt={c.comboName} />
-                          : <ChefHat className="size-6" />}
-                      </div>
-                      <div>
-                        <p className="text-sm font-black line-clamp-1 max-w-[200px] text-orange-600">{c.comboName}</p>
-                        <p className="text-[10px] text-gray-400 font-bold tracking-wider">{c.items.length} thành phần phụ</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 text-center text-sm font-black text-gray-800">{(c.discountPrice || 0).toLocaleString('vi-VN')}đ</td>
-                  <td className="px-6 py-5 text-center">
-                    <span className="px-2 py-1 rounded-lg text-[10px] font-black uppercase bg-green-50 text-green-600">Đang Mở</span>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleEditCombo(c.id)} disabled={isDeleting} className="size-9 bg-gray-50 text-primary rounded-xl flex items-center justify-center hover:bg-primary/10 transition-colors disabled:opacity-50 cursor-pointer">
-                        <Edit3 className="size-4" />
-                      </button>
-                      <button disabled={isDeleting} className="size-9 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50">
-                        <EyeOff className="size-4" />
-                      </button>
-                      <button onClick={() => handleDeleteCombo(c.id)} disabled={isDeleting} className="size-9 bg-gray-50 text-red-400 rounded-xl flex items-center justify-center hover:bg-red-50 transition-colors disabled:opacity-50">
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {activeTab === 'COMBO' && filteredCombos.length === 0 && (
-                <tr><td colSpan={4} className="px-10 py-10 text-center text-gray-400 font-bold">Không tìm thấy Combo nào.</td></tr>
-              )}
 
               {/* Mystery Box Rows */}
               {activeTab === 'BLIND_BOX' && currentPageData.map((box) => (

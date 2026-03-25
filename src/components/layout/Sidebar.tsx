@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, user, currentPath, onNavigate, 
     { name: 'Đơn hàng', icon: ShoppingCart, id: 'orders' },
     { name: 'Đánh giá', icon: MessageSquare, id: 'reviews' },
     { name: 'Thông báo', icon: Bell, id: 'notifications' },
-    { name: 'Khiếu nại', icon: Gavel, id: 'farmer-disputes' },
+    // { name: 'Khiếu nại', icon: Gavel, id: 'farmer-disputes' }, // tạm ẩn
     { name: 'Hồ sơ cá nhân', icon: UserCircle, id: 'profile' },
     { name: 'Tin nhắn', icon: Send, id: 'messages' },
     { name: 'Ví tiền', icon: Wallet, id: 'wallet' },
@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, user, currentPath, onNavigate, 
     { name: 'Quản lý tin tức', icon: Newspaper, id: 'admin-news' },
     { name: 'Quản lý thông báo', icon: Send, id: 'admin-notifications' },
     { name: 'Giám sát cửa hàng', icon: Store, id: 'admin-stores' },
-    { name: 'Tranh chấp', icon: Gavel, id: 'admin-disputes' },
+    // { name: 'Tranh chấp', icon: Gavel, id: 'admin-disputes' }, // tạm ẩn
     { name: 'Quản lý Shipper', icon: Truck, id: 'admin-shippers' },
     { name: 'Quản lý người dùng', icon: Users, id: 'admin-bad-buyers' },
     { name: 'Ví sàn', icon: Wallet, id: 'admin-wallet' },
@@ -80,6 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role, user, currentPath, onNavigate, 
           return (
             <button
               key={item.id}
+              id={`sidebar-item-${item.id}`}
               onClick={() => onNavigate(item.id)}
               className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group ${isActive
                 ? 'bg-primary/5 text-primary border border-primary/10'
