@@ -119,9 +119,8 @@ const AddProduct: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     onChange={(e) => setCategoryId(Number(e.target.value))}
                     className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-600 outline-none appearance-none cursor-pointer"
                   >
-                    <option value={1}>Rau củ</option>
+                    <option value={1}>Củ</option>
                     <option value={2}>Trái cây</option>
-                    {/* <option value={3}>Thịt cá</option> */}
                     <option value={3}>Khác</option>
                   </select>
                 </div>
@@ -197,7 +196,7 @@ const AddProduct: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   <input type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-600 outline-none" />
                   <div className="p-4 bg-primary/5 rounded-2xl flex items-start gap-3 border border-primary/10">
                     <HelpCircle className="size-4 text-primary shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-gray-500 font-medium">Gợi ý: Nhóm <b>Rau lá</b> thường có thời gian bảo quản tốt nhất trong 3 – 5 ngày ở nhiệt độ 5°C.</p>
+                    <p className="text-[11px] text-gray-500 font-medium">Gợi ý: Nhóm <b>Củ</b> thường có thời gian bảo quản tốt nhất trong 3 – 5 ngày ở nhiệt độ 5°C.</p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -211,7 +210,7 @@ const AddProduct: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                       <div className="h-full bg-red-500" style={{ width: '85%' }} />
                     </div>
                     <p className="text-[10px] text-gray-400 font-medium leading-relaxed relative z-10">
-                      Dựa trên phân loại Rau ăn lá: Dễ dập nát, héo nhanh.
+                      Dựa trên phân loại Củ: Dễ dập nát, héo nhanh.
                     </p>
                   </div>
                 </div>

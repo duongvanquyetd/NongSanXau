@@ -4,7 +4,7 @@ import { ChatMessage, ProductSuggestion } from './chatbot.types';
 
 // ===== SUGGESTIONS MẶC ĐỊNH =====
 const DEFAULT_SUGGESTIONS = [
-  'Shop có những loại rau gì?',
+  'Shop có những loại củ quả gì?',
   'Tôi muốn lên kế hoạch ăn uống 3 ngày',
   'Chính sách giao hàng như thế nào?',
   'Sản phẩm nào đang có khuyến mãi?'

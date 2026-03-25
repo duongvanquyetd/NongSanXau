@@ -177,7 +177,7 @@ export function ChatBotModal({
 
         {/* Screen Reader */}
         <div id="chatbot-description" className="sr-only" style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>
-          Trợ lý AI hỗ trợ mua sắm rau củ quả
+          Trợ lý AI hỗ trợ mua sắm nông sản
         </div>
         <div aria-live="polite" aria-atomic="true" className="sr-only" style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>
           {liveMessage}

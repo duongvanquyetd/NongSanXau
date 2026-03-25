@@ -18,10 +18,10 @@ const SubmissionSuccess: React.FC<SubmissionSuccessProps> = ({ onReturn }) => {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
-          Sản phẩm đã lên kệ!
+          Sản phẩm đang chờ duyệt!
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-lg mb-10 max-w-md mx-auto leading-relaxed">
-          Nông sản của bạn đã được đăng bán thành công. Khách hàng giờ đây đã có thể thấy và đặt mua sản phẩm từ farm của bạn.
+          Sản phẩm của bạn đã được gửi lên hệ thống và đang chờ Admin phê duyệt. Sau khi được duyệt, sản phẩm sẽ hiển thị cho khách hàng.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left">
@@ -30,7 +30,7 @@ const SubmissionSuccess: React.FC<SubmissionSuccessProps> = ({ onReturn }) => {
               <EyeOff className="size-5" />
               <span className="text-xs font-black uppercase tracking-widest">Hiển thị</span>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Sản phẩm sẽ xuất hiện ngay tại trang chủ và danh mục Nông sản sạch.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Sản phẩm sẽ xuất hiện trên trang chủ sau khi Admin phê duyệt.</p>
           </div>
           <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3 mb-3 text-accent">

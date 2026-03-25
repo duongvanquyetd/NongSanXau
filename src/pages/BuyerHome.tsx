@@ -42,11 +42,11 @@ const BuyerHome: React.FC<BuyerHomeProps> = ({ onSelectProduct, isAuthenticated 
   const isSearching = searchQuery.length > 0;
 
   const categories = [
-    { name: 'Rau ăn lá', icon: Leaf },
-    { name: 'Rau gia vị', icon: Utensils },
-    { name: 'Rau ăn quả', icon: Apple },
-    { name: 'Củ & hạt', icon: LayoutGrid },
-    { name: 'Trái cây', icon: Grape },
+    { name: 'Củ gia vị', icon: LayoutGrid },
+    { name: 'Trái cây nhiệt đới', icon: Grape },
+    { name: 'Trái cây quanh năm', icon: Utensils },
+    { name: 'Củ thực phẩm', icon: Apple },
+    { name: 'Khác', icon: Leaf },
   ];
 
   useEffect(() => {

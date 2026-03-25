@@ -250,7 +250,7 @@ const BlindBoxTool: React.FC = () => {
                     type="text"
                     value={boxType}
                     onChange={(e) => setBoxType(e.target.value)}
-                    placeholder="VD: Rau củ tươi mùa hè"
+                    placeholder="VD: Củ quả tươi mùa hè"
                     className="w-full p-4 bg-gray-50 border border-transparent rounded-[24px] text-sm font-black outline-none focus:ring-4 focus:ring-primary/5 focus:bg-white transition-all"
                   />
                 </div>

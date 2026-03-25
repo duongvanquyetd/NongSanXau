@@ -216,7 +216,7 @@ const MysteryBoxDetail: React.FC<MysteryBoxDetailProps> = ({
 
           {/* Description */}
           <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap">
-            {box.description || 'Hộp quà nông sản bí ẩn từ nông trại đối tác. Mỗi túi chứa đựng những loại rau củ tươi sạch được chọn lọc kỹ càng.'}
+            {box.description || 'Hộp quà nông sản bí ẩn từ nông trại đối tác. Mỗi túi chứa đựng những loại củ quả tươi sạch được chọn lọc kỹ càng.'}
           </p>
 
           {/* Note */}
@@ -280,7 +280,7 @@ const MysteryBoxDetail: React.FC<MysteryBoxDetailProps> = ({
               <Gift className="size-4 text-primary" /> Túi mù gồm những gì?
             </h4>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Nội dung túi mù được giữ bí mật để tạo bất ngờ! Bạn sẽ nhận được các loại rau củ quả tươi sạch theo mùa, được chọn lọc kỹ từ nông trại đối tác đã được chứng nhận.
+              Nội dung túi mù được giữ bí mật để tạo bất ngờ! Bạn sẽ nhận được các loại củ quả tươi sạch theo mùa, được chọn lọc kỹ từ nông trại đối tác đã được chứng nhận.
             </p>
             <div className="grid grid-cols-3 gap-4 mt-4">
               {['100% Tươi sạch', 'Theo mùa vụ', 'Đủ cho 2-4 người'].map((tag) => (

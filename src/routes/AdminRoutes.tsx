@@ -12,6 +12,7 @@ import Disputes from '../pages/admin/Disputes';
 import ShipperManagement from '../pages/admin/ShipperManagement';
 import BadBuyers from '../pages/admin/BadBuyers';
 import AdminWallet from '../pages/admin/AdminWallet';
+import ProductApproval from '../pages/admin/ProductApproval';
 import { AppRole } from '../types';
 
 const AdminRoutes = () => {
@@ -29,6 +30,7 @@ const AdminRoutes = () => {
             <Route path="notifications" element={<NotificationManagement />} />
             <Route path="stores" element={<ShopMonitoring />} />
             <Route path="disputes" element={<Disputes />} />
+            <Route path="product-approval" element={<ProductApproval />} />
             <Route path="shippers" element={<ShipperManagement />} />
             <Route path="bad-buyers" element={<BadBuyers />} />
             <Route path="wallet" element={<AdminWallet />} />

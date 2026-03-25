@@ -104,8 +104,10 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
     const matchSearch = p.productName.toLowerCase().includes(searchQuery.toLowerCase()) || p.id.toString().includes(searchQuery);
     const matchCategory = categoryFilter === '' || p.categoryId === categoryFilter;
     let matchStatus = true;
-    if (statusFilter === 'IN_STOCK') matchStatus = p.stockQuantity > 0;
+    if (statusFilter === 'IN_STOCK') matchStatus = (p.status === 'AVAILABLE' || !p.status) && p.stockQuantity > 0;
     if (statusFilter === 'OUT_OF_STOCK') matchStatus = p.stockQuantity <= 0;
+    if (statusFilter === 'PENDING') matchStatus = p.status === 'PENDING';
+    if (statusFilter === 'INACTIVE') matchStatus = p.status === 'INACTIVE';
     return matchSearch && matchCategory && matchStatus;
   });
 
@@ -136,9 +138,8 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
   };
 
   const CATEGORY_MAP = [
-    { id: 1, name: 'Rau củ' },
+    { id: 1, name: 'Củ' },
     { id: 2, name: 'Trái cây' },
-    // { id: 3, name: 'Thịt cá' },
     { id: 3, name: 'Khác' },
   ];
 
@@ -225,6 +226,8 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
                 <>
                   <option value="IN_STOCK">Đang bán (Còn hàng)</option>
                   <option value="OUT_OF_STOCK">Hết hàng</option>
+                  <option value="PENDING">Chờ duyệt</option>
+                  <option value="INACTIVE">Bị từ chối</option>
                 </>
               )}
               {activeTab === 'BLIND_BOX' && (
@@ -284,8 +287,14 @@ const Products: React.FC<{ onNavigate: (id: string) => void }> = ({ onNavigate }
                       </div>
                     </td>
                     <td className="px-6 py-5 text-center">
-                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${isOut ? 'bg-gray-100 text-gray-400' : 'bg-green-50 text-green-600'}`}>
-                        {isOut ? 'Hết hàng' : 'Đang bán'}
+                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${
+                        p.status === 'PENDING' ? 'bg-yellow-50 text-yellow-600' :
+                        p.status === 'INACTIVE' ? 'bg-gray-100 text-gray-400' :
+                        isOut ? 'bg-gray-100 text-gray-400' : 'bg-green-50 text-green-600'
+                      }`}>
+                        {p.status === 'PENDING' ? 'Chờ duyệt' :
+                         p.status === 'INACTIVE' ? 'Bị từ chối' :
+                         isOut ? 'Hết hàng' : 'Đang bán'}
                       </span>
                     </td>
                     <td className="px-6 py-5">

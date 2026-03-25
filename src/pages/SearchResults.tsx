@@ -235,9 +235,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ onSelectProduct }) => {
           <h4 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wider">Danh mục sản phẩm</h4>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { id: 1, name: 'Rau củ' },
+              { id: 1, name: 'Củ' },
               { id: 2, name: 'Trái cây' },
-              // { id: 3, name: 'Thịt cá' },
               { id: 4, name: 'Khác' },
             ].map((cat) => (
               <label key={cat.id} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">

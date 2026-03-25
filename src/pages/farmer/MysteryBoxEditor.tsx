@@ -211,7 +211,7 @@ const MysteryBoxEditor: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <div>
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Tên hộp mù *</label>
                   <input type="text" value={boxType} onChange={e => setBoxType(e.target.value)}
-                    placeholder="VD: Hộp mù rau củ tươi sạch"
+                    placeholder="VD: Hộp mù củ quả tươi sạch"
                     className="w-full px-4 py-4 bg-gray-50 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-primary/10 transition-all" />
                 </div>
 

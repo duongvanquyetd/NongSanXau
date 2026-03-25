@@ -82,6 +82,20 @@ class ProductService {
     async deleteProduct(id: number): Promise<ApiResponse<void>> {
         return httpClient.delete<void>(`/products/${id}`);
     }
+
+    async getPendingProducts(): Promise<ApiResponse<ProductResponse[]>> {
+        const res = await httpClient.get<ProductResponse[]>('/products/pending');
+        if (res.result) res.result = res.result.map(normalizeProduct);
+        return res;
+    }
+
+    async approveProduct(id: number): Promise<ApiResponse<ProductResponse>> {
+        return httpClient.patch<ProductResponse>(`/products/${id}/approve`);
+    }
+
+    async rejectProduct(id: number, reason: string): Promise<ApiResponse<ProductResponse>> {
+        return httpClient.patch<ProductResponse>(`/products/${id}/reject?reason=${encodeURIComponent(reason)}`);
+    }
 }
 
 export const productService = new ProductService();
