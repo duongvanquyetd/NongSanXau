@@ -164,7 +164,7 @@ const AdminWallet: React.FC = () => {
           <h3 className="text-2xl font-bold text-gray-900 mb-1">
             {platformCommission.toLocaleString('vi-VN')} <span className="text-sm font-normal text-gray-400">đ</span>
           </h3>
-          <p className="text-xs text-blue-600 font-semibold">~3% từ giao dịch</p>
+          <p className="text-xs text-blue-600 font-semibold">10% từ giao dịch</p>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -172,7 +172,7 @@ const AdminWallet: React.FC = () => {
           <h3 className="text-2xl font-bold text-gray-900 mb-1">
             {shippingFees.toLocaleString('vi-VN')} <span className="text-sm font-normal text-gray-400">đ</span>
           </h3>
-          <p className="text-xs text-gray-500 font-semibold">~1% từ giao dịch</p>
+          <p className="text-xs text-gray-500 font-semibold">3% từ giao dịch</p>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">

@@ -84,19 +84,8 @@ const Orders: React.FC<OrdersProps> = ({ onPrepareOrder }) => {
     }
   };
 
-  const handleConfirmOrder = async (orderId: number) => {
-    if (!await globalShowConfirm(`Xác nhận chuẩn bị đơn hàng #${orderId}?`, 'Xác nhận đơn')) return;
-    try {
-      setIsProcessing(true);
-      await orderService.updateOrder(orderId, { status: 'CONFIRMED' });
-      globalShowAlert(`Đã xác nhận đơn hàng #${orderId} — Đang chuẩn bị hàng!`, 'Thành công', 'success');
-      if (onPrepareOrder) onPrepareOrder(orderId.toString());
-      fetchOrders();
-    } catch (err: any) {
-      globalShowAlert(err?.data?.message || 'Có lỗi khi xác nhận đơn hàng', 'Lỗi', 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleConfirmOrder = (orderId: number) => {
+    if (onPrepareOrder) onPrepareOrder(orderId.toString());
   };
 
   const tabs = [
